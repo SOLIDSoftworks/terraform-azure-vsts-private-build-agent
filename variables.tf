@@ -4,7 +4,7 @@ variable "arm_tenant_id" {}
 variable "arm_subscription_id" {}
 
 variable "location" { default = "East US" }
-variable "name" {}
+variable "name" { default = "buildagent"}
 
 variable "admin_username" {}
 variable "admin_password" {}
