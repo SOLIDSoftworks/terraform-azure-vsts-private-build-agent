@@ -57,18 +57,6 @@ resource "azurerm_virtual_machine" "virtual_machine" {
       password    = "${var.admin_password}"
     }
   }
-
-  provisioner "file" {
-    source = "${path.module}/provisioning/getagent.sh"
-    destination = "/home/${var.admin_username}/getagent.sh"
-
-    connection {
-      type        = "ssh"
-      host        = "${azurerm_public_ip.public_ip.ip_address}"
-      user        = "${var.admin_username}"
-      password    = "${var.admin_password}"
-    }
-  }
 }
 
 resource "null_resource" "provision_build_agent" {
@@ -80,15 +68,8 @@ resource "null_resource" "provision_build_agent" {
     inline = [
       "sudo apt-get -y install dos2unix",
       "sudo dos2unix /home/${var.admin_username}/provision.sh",
-      "sudo dos2unix /home/${var.admin_username}/getagent.sh",
       "chmod +x /home/${var.admin_username}/provision.sh",
-      "chmod +x /home/${var.admin_username}/getagent.sh",
-      "/home/${var.admin_username}/provision.sh",    
-      "/home/${var.admin_username}/getagent.sh",    
-
-      "/home/${var.admin_username}/config.sh --acceptteeeula --pool ${var.vsts_agent_group} --agent ${var.name} --url https://${var.vsts_user}.visualstudio.com/ --work _work --auth PAT --token ${var.vsts_personal_access_token} --runasservice --replace",
-      "sudo /home/${var.admin_username}/svc.sh install",
-      "sudo /home/${var.admin_username}/svc.sh start"
+      "/home/${var.admin_username}/provision.sh ${var.vsts_agent_group} ${var.name} ${var.vsts_user} ${var.vsts_personal_access_token}"
     ]
 
     connection {
