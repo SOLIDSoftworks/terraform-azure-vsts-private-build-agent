@@ -12,3 +12,5 @@ variable "admin_password" {}
 variable "vsts_user" {}
 variable "vsts_agent_group" { default = "default" }
 variable "vsts_personal_access_token" {}
+
+variable "count" { default = 1}

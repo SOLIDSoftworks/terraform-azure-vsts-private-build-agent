@@ -13,21 +13,25 @@ resource "azurerm_subnet" "subnet" {
 }
 
 resource "azurerm_public_ip" "public_ip" {
-  name                         = "${var.name}_public_ip"
+  name                         = "${var.name}${count.index}_public_ip"
   location                     = "${var.location}"
   resource_group_name          = "${azurerm_resource_group.resource_group.name}"
   public_ip_address_allocation = "static"
+
+  count = "${var.count}"
 }
 
 resource "azurerm_network_interface" "network_interface" {
-  name                = "${var.name}_network_interface"
+  name                = "${var.name}${count.index}_network_interface"
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.resource_group.name}"
 
   ip_configuration {
-    name                          = "${var.name}_network_interface_ip_configuration"
+    name                          = "${var.name}${count.index}_network_interface_ip_configuration"
     subnet_id                     = "${azurerm_subnet.subnet.id}"
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id          = "${azurerm_public_ip.public_ip.id}"
+    public_ip_address_id          = "${element(azurerm_public_ip.public_ip.*.id, count.index)}"
   }
+
+  count = "${var.count}"
 }
