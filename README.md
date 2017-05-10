@@ -37,6 +37,8 @@ This is a terraform script for creating and provisioning a private build server 
 **vsts_personal_access_token**: This is a personal access token that you can create on [vsts](https://www.visualstudio.com/). Documentation on this can be found on [visualstudio.com](https://www.visualstudio.com/en-us/docs/setup-admin/team-services/use-personal-access-tokens-to-authenticate)
 
 ### Optional
+**count**: This is the amount of build agents you want to create. Defaults to **1**.
+
 **name**: This is the name of the build agent. Defaults to **buildagent**.
 
 **location**: This is the location of the build agent on Azure. Defaults to **East US**. _Be aware that changing this might break the terraform plan since the VM size is always set to Standard_DS1_v2. This should be set as a variable later._
@@ -44,4 +46,6 @@ This is a terraform script for creating and provisioning a private build server 
 **vsts_agent_group**: Sets what group the agent should be put into. Defaults to **default**
 
 ## Stability
-Right now this is not fully stable. The Terraform cli deadlocks when the provisioner runs **config.sh** in remote-exec. The scripts finishes up and registers the build agent, the state isn't corrent because of the deadlock. Trying to find another solution to this.
+The provisioning script doesn't directly run the **config.sh** for configuring the build agent. If it does, the Terraform cli deadlocks. Instead, a job is scheduled on the build agent to run the script <1 minute after the Terraform script has finished.
+
+This hack makes it so that the Terraform script can finish it's run. If the **config.sh** script fails however, the node will **not** be marked as tainted.
