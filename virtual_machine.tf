@@ -57,6 +57,18 @@ resource "azurerm_virtual_machine" "virtual_machine" {
       password    = "${var.admin_password}"
     }
   }
+
+  provisioner "file" {
+    source = "${path.module}/provisioning/startagent.sh"
+    destination = "/home/${var.admin_username}/startagent.sh"
+
+    connection {
+      type        = "ssh"
+      host        = "${azurerm_public_ip.public_ip.ip_address}"
+      user        = "${var.admin_username}"
+      password    = "${var.admin_password}"
+    }
+  }
 }
 
 resource "null_resource" "provision_build_agent" {
@@ -68,8 +80,11 @@ resource "null_resource" "provision_build_agent" {
     inline = [
       "sudo apt-get -y install dos2unix",
       "sudo dos2unix /home/${var.admin_username}/provision.sh",
+      "sudo dos2unix /home/${var.admin_username}/startagent.sh",
       "chmod +x /home/${var.admin_username}/provision.sh",
-      "/home/${var.admin_username}/provision.sh ${var.vsts_agent_group} ${var.name} ${var.vsts_user} ${var.vsts_personal_access_token}"
+      "chmod +x /home/${var.admin_username}/startagent.sh",
+      "/home/${var.admin_username}/provision.sh",
+      "echo '/home/${var.admin_username}/startagent.sh ${var.vsts_agent_group} ${var.name} ${var.vsts_user} ${var.vsts_personal_access_token}' | at now + 1 minute"
     ]
 
     connection {
