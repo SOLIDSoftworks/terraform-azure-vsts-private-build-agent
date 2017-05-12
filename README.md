@@ -44,8 +44,3 @@ This is a terraform script for creating and provisioning a private build server 
 **location**: This is the location of the build agent on Azure. Defaults to **East US**. _Be aware that changing this might break the terraform plan since the VM size is always set to Standard_DS1_v2. This should be set as a variable later._
 
 **vsts_agent_group**: Sets what group the agent should be put into. Defaults to **default**
-
-## Stability
-The provisioning script doesn't directly run the **config.sh** for configuring the build agent. If it does, the Terraform cli deadlocks. Instead, a job is scheduled on the build agent to run the script <1 minute after the Terraform script has finished.
-
-This hack makes it so that the Terraform script can finish it's run. If the **config.sh** script fails however, the node will **not** be marked as tainted.
